@@ -48,16 +48,20 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y postfix
 apt-get install -y ruby1.9.3 ruby-dev rubygems
 apt-get remove -y ruby1.8
 
+
+#
+# 3.Gem
+#
 gem install bundler --no-ri --no-rdoc || exit 1
 gem install charlock_holmes --version "0.6.9.4" || exit 1
 
 #
-# 3. System Users
+# 4. System Users
 #
 adduser --disabled-login --gecos 'GitLab' git
 
 #
-# 4. GitLab shell
+# 5. GitLab shell
 #
 cd /home/git
 if [ ! -d gitlab-shell ]; then
@@ -70,7 +74,7 @@ if [ ! -d gitlab-shell ]; then
 fi
 
 #
-# 5. Database
+# 6. Database
 #
 cat <<__EOT__ | debconf-set-selections
 mysql-server-5.5        mysql-server/root_password_again        password
@@ -87,13 +91,13 @@ mysql -u root -e 'CREATE DATABASE IF NOT EXISTS `gitlabhq_production` DEFAULT CH
 mysql -u root -e "GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, LOCK TABLES ON \`gitlabhq_production\`.* TO 'gitlab'@'localhost';"
 
 #
-# 6. Gitlab
+# 7. Gitlab
 #
 cd /home/git
 if [ ! -d gitlab ]; then
     sudo -H -u git git clone https://github.com/gitlabhq/gitlabhq.git gitlab
     cd gitlab
-    sudo -H -u git git checkout 6-0-stable
+    sudo -H -u git git checkout 6-1-stable
  
     sudo -H -u git cp -v config/gitlab.yml.example config/gitlab.yml
     sudo -H -u git cp -v config/unicorn.rb.example config/unicorn.rb
@@ -123,7 +127,7 @@ if [ ! -d gitlab ]; then
     sed -i "s/username: root/username: gitlab/" config/database.yml
  
     cd /home/git/gitlab
-    sudo -H -u git bundle install --deployment --without development test postgres || exit 1
+    sudo -H -u git bundle install --deployment --without development test postgres aws || exit 1
 fi
 
 cd /home/git/gitlab
@@ -133,7 +137,7 @@ chmod +x /etc/init.d/gitlab
 update-rc.d gitlab defaults 21
 
 #
-# 7. Nginx
+# 8. Nginx
 #
 apt-get install -y nginx
 cp -v lib/support/nginx/gitlab /etc/nginx/sites-available/gitlab
