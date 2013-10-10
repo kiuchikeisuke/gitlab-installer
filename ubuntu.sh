@@ -45,9 +45,12 @@ DEBIAN_FRONTEND=noninteractive apt-get install -y postfix
 #
 # 2. Ruby
 #
-apt-get install -y ruby1.9.3 ruby-dev rubygems
-apt-get remove -y ruby1.8
-
+mkdir /tmp/ruby && cd /tmp/ruby
+curl --progress ftp://ftp.ruby-lang.org/pub/ruby/2.0/ruby-2.0.0-p247.tar.gz | tar xz
+cd ruby-2.0.0-p247
+./configure
+make
+sudo make install
 
 #
 # 3.Gem
